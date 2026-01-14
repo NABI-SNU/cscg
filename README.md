@@ -139,9 +139,7 @@ The functions `forward_mp` and `backtrace` compute the MAP path:
 
 - Replace sums with maxima:
 
-  $$
-  \tilde{\delta}_t(j) = \max_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \delta_{t-1}(i)
-  $$
+> $$\tilde{\delta}_t(j) = \max_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \delta_{t-1}(i)$$
 
 - Normalize by dividing by `max()` per step (for stability)
 - `backtrace()` chooses argmax *with random tie-breaking* via `rargmax()` to reduce systematic bias.
