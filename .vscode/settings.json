@@ -1,0 +1,41 @@
+{
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.tabSize" : 4,
+    "files.exclude": {
+        "**/.pyc": true,
+        "**/__pycache__": true,
+        "**/.mypy_cache": true,
+        "**/.devbox": true,
+        "**/.ruff_cache": true,
+        "**/.pytest_cache": true,
+        "**/.pixi": true,
+        "**/xlp.egg-info": true,
+        "build": true,
+        "dist": true,
+    },
+    "editor.wordWrap": "on",
+    "[markdown]": {
+        "editor.tabSize": 2
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.rulers": [
+            80
+        ],
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
+    },
+    "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniconda/base/envs/cscg/bin/python",
+    "python.testing.unittestEnabled": true,
+    "C_Cpp.errorSquiggles": "enabled",
+    "isort.args" : [
+        "--profile=black"
+    ]
+}
