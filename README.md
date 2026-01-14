@@ -70,7 +70,7 @@ There are two modes in the code:
 2. **Learned emission matrix `E`** (optional; used by `learn_em_E`, `forwardE`, etc.):
    - `E`: shape `(H, E)`
    - row-normalized so each hidden state has a distribution over observation symbols:
-$$ E[i, j] = P(x_t=j \mid z_t=i), \quad \sum_{j} E[i,j]=1. $$
+$$E[i, j] = P(x_t=j \mid z_t=i), \quad \sum_{j} E[i,j]=1.$$
    This is used for transfer / relabeling experiments and more general observation noise models.
 
 ---
@@ -83,18 +83,22 @@ The implementation uses **message passing** (forward–backward) with **per-step
 
 For the deterministic-emission (clone-structured) model, define the forward message at time $t$ over clones in $C(x_t)$:
 
-$$ \alpha_t(j) \propto P(z_t=j \mid x_{1:t}, a_{1:t-1}), \quad j \in C(x_t). $$
+$$\alpha_t(j) \propto P(z_t=j \mid x_{1:t}, a_{1:t-1}), \quad j \in C(x_t).$$
 
 > **Initialization** (restrict to clones of $x_1$):
-> $$ \alpha_1(j) = \frac{\Pi(j)}{\sum_{k\in C(x_1)} \Pi(k)},\quad j\in C(x_1). $$
+> $$\alpha_1(j) = \frac{\Pi(j)}{\sum_{k\in C(x_1)} \Pi(k)},\quad j\in C(x_1).$$
 >
 
 Next,
 
 > **Recursion** for $t\ge 2$, with $a_{t-1}$:
-> $$ \tilde{\alpha}_t(j) = \sum_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \alpha_{t-1}(i), \quad j\in C(x_t), $$
+>
+> $$\tilde{\alpha}_t(j) = \sum_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \alpha_{t-1}(i), \quad j\in C(x_t)$$
+>
 > then normalize:
-> $$ \alpha_t(j) = \frac{\tilde{\alpha}_t(j)}{\sum_{k\in C(x_t)} \tilde{\alpha}_t(k)}. $$
+>
+> $$\alpha_t(j) = \frac{\tilde{\alpha}_t(j)}{\sum_{k\in C(x_t)} \tilde{\alpha}_t(k)}. $$
+>
 
 The code computes the normalization constant $p_t = \sum \tilde{\alpha}_t$ and stores $\log_2(p_t)$ per step.
 
@@ -114,6 +118,7 @@ $$
 \tilde{\beta}_t(i) = \sum_{j\in C(x_{t+1})} T[a_t, i, j]\, \beta_{t+1}(j),
 \quad i \in C(x_t),
 $$
+
 then normalize by $\sum_i \tilde{\beta}_t(i)$ (the code normalizes each step).
 
 #### 3.3 Posterior marginals
@@ -123,6 +128,7 @@ Given stored forward/backward messages (already normalized), the code forms:
 $$
 \gamma_t(i) \propto \alpha_t(i)\beta_t(i),
 $$
+
 followed by normalization across the clone block for that $t$.
 
 This is used to update counts.
@@ -132,9 +138,11 @@ This is used to update counts.
 The functions `forward_mp` and `backtrace` compute the MAP path:
 
 - Replace sums with maxima:
+
   $$
   \tilde{\delta}_t(j) = \max_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \delta_{t-1}(i)
   $$
+
 - Normalize by dividing by `max()` per step (for stability)
 - `backtrace()` chooses argmax *with random tie-breaking* via `rargmax()` to reduce systematic bias.
 
@@ -155,24 +163,10 @@ For each time step $t = 2..T$, action $a_{t-1}$, previous observation $x_{t-1}=i
 - Let $I=C(i)$, $J=C(j)$.
 - Compute local pairwise posterior over clone-to-clone transitions:
 
-$$
-q_{t-1}(u,v)
-=
-\frac{
-\alpha_{t-1}(u)\ T[a_{t-1},u,v]\ \beta_t(v)
-}{
-\sum_{u'\in I}\sum_{v'\in J}
-\alpha_{t-1}(u')\ T[a_{t-1},u',v']\ \beta_t(v')
-},
-\quad (u\in I, v\in J)
-$$
+$$ q_{t-1}(u,v) = \frac{\alpha_{t-1}(u)\ T[a_{t-1},u,v]\ \beta_t(v)}{\sum_{u'\in I}\sum_{v'\in J} \alpha_{t-1}(u')\ T[a_{t-1},u',v']\ \beta_t(v')}, \quad (u\in I, v\in J) $$
 
 Then accumulate expected counts:
 
-$$
-C[a_{t-1}, u, v] \leftarrow \sum_{t} q_{t-1}(u,v).
-$$
+$$C[a_{t-1}, u, v] \leftarrow \sum_{t} q_{t-1}(u,v).$$
 
 This is implemented in `updateC()` using contiguous block slices of `mess_fwd` and `mess_bwd`.
-
-**M-step:** normalize with pseudocount
