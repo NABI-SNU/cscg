@@ -10,12 +10,7 @@ This document describes the **clone-structured cognitive graph (CSCG)** as imple
 
 > In the CSCG formulation, the joint density over an observation–action trajectory is
 >
-> $$
-> P(x_{1:N}, a_{1:N-1})
-> =
-> \sum_{z_1 \in C(x_1)} \cdots \sum_{z_N \in C(x_N)}
-> P(z_1)\prod_{n=1}^{N-1} P(z_{n+1}, a_n \mid z_n).
-> $$
+> $$ P(x_{1:N}, a_{1:N-1}) = \sum_{z_1 \in C(x_1)} \cdots \sum_{z_N \in C(x_N)} P(z_1)\prod_{n=1}^{N-1} P(z_{n+1}, a_n \mid z_n). $$
 >
 > where $C(j)$ denotes the set of clones that emit observation $j$.
 
@@ -36,16 +31,13 @@ The code expects **paired sequences**:
 #### Clones (hidden states)
 
 Let there be $E$ observation symbols. Each symbol $j$ has `n_clones[j] = K_j` hidden states (“clones”) assigned to it. Thus, the total number of hidden states is:
-  $$
-  H = \sum_{j=0}^{E-1} K_j.
-  $$
+> $$ H = \sum_{j=0}^{E-1} K_j. $$
 
 Define the clone index ranges via a prefix-sum:
 
 - `state_loc = np.cumsum([0] + n_clones.tolist())` so that clones for observation $j$ are:
-  $$
-  C(j) = \{\, \mathrm{state\_loc}[j] , \mathrm{state\_loc}[j] + 1, \cdots, \mathrm{state\_loc}[j+1]-1 \,\}.
-  $$
+
+> $$ C(j) = \{\, \mathrm{state\_loc}[j] , \mathrm{state\_loc}[j] + 1, \cdots, \mathrm{state\_loc}[j+1]-1 \,\}. $$
 
 ---
 
@@ -78,10 +70,7 @@ There are two modes in the code:
 2. **Learned emission matrix `E`** (optional; used by `learn_em_E`, `forwardE`, etc.):
    - `E`: shape `(H, E)`
    - row-normalized so each hidden state has a distribution over observation symbols:
-     $$
-     E[i, j] = P(x_t=j \mid z_t=i),
-     \quad \sum_{j} E[i,j]=1.
-     $$
+$$ E[i, j] = P(x_t=j \mid z_t=i), \quad \sum_{j} E[i,j]=1. $$
    This is used for transfer / relabeling experiments and more general observation noise models.
 
 ---
@@ -94,30 +83,18 @@ The implementation uses **message passing** (forward–backward) with **per-step
 
 For the deterministic-emission (clone-structured) model, define the forward message at time $t$ over clones in $C(x_t)$:
 
-$$
-\alpha_t(j) \propto P(z_t=j \mid x_{1:t}, a_{1:t-1}), \quad j \in C(x_t).
-$$
+$$ \alpha_t(j) \propto P(z_t=j \mid x_{1:t}, a_{1:t-1}), \quad j \in C(x_t). $$
 
 > **Initialization** (restrict to clones of $x_1$):
-> $$
-> \alpha_1(j) = \frac{\Pi(j)}{\sum_{k\in C(x_1)} \Pi(k)},\quad j\in C(x_1).
-> $$
+> $$ \alpha_1(j) = \frac{\Pi(j)}{\sum_{k\in C(x_1)} \Pi(k)},\quad j\in C(x_1). $$
 >
 
 Next,
 
 > **Recursion** for $t\ge 2$, with $a_{t-1}$:
->
->$$
-> \tilde{\alpha}_t(j) = \sum_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \alpha_{t-1}(i),
-> \quad j\in C(x_t),
-> $$
->
+> $$ \tilde{\alpha}_t(j) = \sum_{i\in C(x_{t-1})} T[a_{t-1}, i, j]\ \alpha_{t-1}(i), \quad j\in C(x_t), $$
 > then normalize:
->
->$$
-> \alpha_t(j) = \frac{\tilde{\alpha}_t(j)}{\sum_{k\in C(x_t)} \tilde{\alpha}_t(k)}.
-> $$
+> $$ \alpha_t(j) = \frac{\tilde{\alpha}_t(j)}{\sum_{k\in C(x_t)} \tilde{\alpha}_t(k)}. $$
 
 The code computes the normalization constant $p_t = \sum \tilde{\alpha}_t$ and stores $\log_2(p_t)$ per step.
 
