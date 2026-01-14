@@ -27,12 +27,6 @@ repos:
       - id: mypy
         files: \.py$
         exclude: ^scripts/
-        additional_dependencies:
-          - types-requests==2.31.0
-          - jaxlib==0.4.31
-          - ml_dtypes==0.3.2
-          - numpy==1.26.3
-          - scipy==1.11.4
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.7.1
