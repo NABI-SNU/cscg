@@ -37,5 +37,6 @@
     "C_Cpp.errorSquiggles": "enabled",
     "isort.args" : [
         "--profile=black"
-    ]
+    ],
+    "jupyter.allowUnauthorizedRemoteConnection": true
 }
