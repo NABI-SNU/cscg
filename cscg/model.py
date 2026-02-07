@@ -5,7 +5,7 @@ from __future__ import annotations
 import sys
 
 import numpy as np
-from tqdm import trange
+# from tqdm import trange as range
 
 from .inference import (
     backtrace,
@@ -230,7 +230,7 @@ class CHMM:
         """
         sys.stdout.flush()
         convergence = []
-        pbar = trange(n_iter, position=0)
+        pbar = range(n_iter)
         log2_lik_old = -np.inf
         for _ in pbar:
             # E-step
@@ -275,7 +275,7 @@ class CHMM:
         """
         sys.stdout.flush()
         convergence = []
-        pbar = trange(n_iter, position=0)
+        pbar = range(n_iter)
         log2_lik_old = -np.inf
         for _ in pbar:
             # E-step (hard assignment)
@@ -332,7 +332,7 @@ class CHMM:
         CE = np.ones((n_states, n_emissions), self.dtype)
         E = self.update_E(CE + pseudocount_extra)
         convergence = []
-        pbar = trange(n_iter, position=0)
+        pbar = range(n_iter)
         log2_lik_old = -np.inf
         for _ in pbar:
             # E-step
