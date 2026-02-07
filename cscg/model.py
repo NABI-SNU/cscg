@@ -247,7 +247,6 @@ class CHMM:
             # M-step
             self.update_T()
             convergence.append(-log2_lik.mean())
-            pbar.set_postfix(train_bps=convergence[-1])
             if log2_lik.mean() <= log2_lik_old:
                 if term_early:
                     break
@@ -300,7 +299,6 @@ class CHMM:
             self.update_T()
 
             convergence.append(-log2_lik.mean())
-            pbar.set_postfix(train_bps=convergence[-1])
             if log2_lik.mean() <= log2_lik_old:
                 break
             log2_lik_old = log2_lik.mean()
@@ -350,7 +348,6 @@ class CHMM:
             # M-step
             E = self.update_E(CE + pseudocount_extra)
             convergence.append(-log2_lik.mean())
-            pbar.set_postfix(train_bps=convergence[-1])
             if log2_lik.mean() <= log2_lik_old:
                 break
             log2_lik_old = log2_lik.mean()
